@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
-import 'package:stripe_integration/keys.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class StripeCardPayment extends StatefulWidget {
   const StripeCardPayment({super.key});
@@ -13,6 +13,7 @@ class StripeCardPayment extends StatefulWidget {
 }
 
 class _StripeCardPaymentState extends State<StripeCardPayment> {
+  String get stripeSecretKeyToken => dotenv.env['STRIPE_SECRET_KEY_TOKEN']!;
   Map<String, dynamic>? paymentIntentData;
   @override
   Widget build(BuildContext context) {
