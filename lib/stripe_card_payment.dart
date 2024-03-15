@@ -26,7 +26,7 @@ class _StripeCardPaymentState extends State<StripeCardPayment> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await makePayment();
+                await initPayment();
                 try {
                   await Stripe.instance.presentPaymentSheet();
                 } catch (e) {
@@ -41,9 +41,9 @@ class _StripeCardPaymentState extends State<StripeCardPayment> {
     );
   }
 
-  Future<void> makePayment() async {
+  Future<void> initPayment() async {
     try {
-      paymentIntentData = await createPaymentIntent('20000', 'pkr');
+      paymentIntentData = await createPaymentIntent(298.89, 'USD');
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentData!['client_secret'],
@@ -56,10 +56,12 @@ class _StripeCardPaymentState extends State<StripeCardPayment> {
     }
   }
 
-  createPaymentIntent(String amount, String currency) async {
+  createPaymentIntent(double amount, String currency) async {
     try {
+      //convert to cents because the stripe accepts the payments in smallest currency unit(cents, paisa etc) and then it shows in dollar or rupee on ui
+      int amountInCents = (amount * 100).round();
       Map<String, dynamic> body = {
-        'amount': amount,
+        'amount': amountInCents.toString(),
         'currency': currency,
         'payment_method_types[]': 'card',
       };
@@ -71,7 +73,7 @@ class _StripeCardPaymentState extends State<StripeCardPayment> {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       );
-
+      print(jsonDecode(response.body.toString()));
       return jsonDecode(response.body.toString());
     } catch (e) {
       print('Exception: ${e.toString()}');
